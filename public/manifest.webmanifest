@@ -1,0 +1,19 @@
+{
+  "name": "Papp – pensjonistappen",
+  "short_name": "Papp",
+  "description": "Privatøkonomi for pensjonister: sparekapital, gjeld, bolig, inntekt, skatt og disponibel økonomi i inntil tre alternativer.",
+  "start_url": "/Papp/",
+  "scope": "/Papp/",
+  "display": "standalone",
+  "background_color": "#f4f6f5",
+  "theme_color": "#246b57",
+  "lang": "no",
+  "icons": [
+    {
+      "src": "/Papp/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

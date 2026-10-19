@@ -1,0 +1,45 @@
+// Rader i resultattabellen «År for år». Brukes både i appen og i Excel-eksporten.
+// hide = skjul raden hvis alle år er 0. strong = uthevet.
+export const SECTIONS = [
+  { title: 'Hovedkonto', rows: [
+    { l: 'Saldo 1. januar', f: (y) => y.openMain },
+    { l: 'Boligsalg inn på konto', f: (y) => y.settlementIn, hide: true },
+    { l: 'Salg av fond/aksjer inn på konto', f: (y) => y.fundSaleIn, hide: true },
+    { l: 'Utbetalinger', f: (y) => -y.payouts, hide: true },
+    { l: 'Boligkjøp inkl. avgift og omkostninger', f: (y) => -y.homeOut, hide: true },
+    { l: 'Gjeld: renter', f: (y) => -y.debtInterest, hide: true },
+    { l: 'Gjeld: avdrag og innfrielse', f: (y) => -y.debtPrincipal, hide: true },
+    { l: 'Renteinntekt (alle bankkontoer, brutto)', f: (y) => y.interest },
+    { l: 'Skatt på netto renter (etter rentefradrag)', f: (y) => -y.interestTax },
+    { l: 'Formuesskatt', f: (y) => -y.wealthTax },
+    { l: 'Skatt på salgsgevinst', f: (y) => -y.gainTax, hide: true },
+    { l: 'Netto avkastning (renter − skatt − formuesskatt)', f: (y) => y.netReturn, strong: true },
+    { l: 'Uttak fra kapital til livsopphold', f: (y) => -y.withdrawals },
+    { l: '  Uttak per måned', f: (y) => y.withdrawalPerMonth, strong: true },
+    { l: 'Restskatt fra året før (inkl. rentetillegg)', f: (y) => -y.restPaid, hide: true },
+    { l: 'Saldo 31. desember', f: (y) => y.closeMain, strong: true },
+  ] },
+  { title: 'Formue 31. desember', rows: [
+    { l: 'Bankkontoer', f: (y) => y.kontoClose },
+    { l: 'Fond', f: (y) => y.fondClose, hide: true },
+    { l: 'Aksjer', f: (y) => y.aksjerClose, hide: true },
+    { l: 'Sparekapital totalt', f: (y) => y.savingsClose, strong: true },
+    { l: 'Annen formue', f: (y) => y.annetClose, hide: true },
+    { l: 'Bolig (markedsverdi)', f: (y) => y.homeMarket, hide: true },
+    { l: 'Gjeld', f: (y) => -y.debtClose, hide: true },
+    { l: 'Netto formue (sparekapital + annet + bolig − gjeld)', f: (y) => y.netWorth, strong: true },
+    { l: 'Formuesgrunnlag (til skatt)', f: (y) => y.wealthNet },
+  ] },
+  { title: 'Inntekt', rows: [
+    { l: 'Lønn brutto per år', f: (y) => y.salary, hide: true },
+    { l: 'Pensjon brutto per år', f: (y) => y.pension, hide: true },
+    { l: 'Skatt på lønn og pensjon (trekkes)', f: (y) => -y.trekk },
+    { l: 'Lønn og pensjon etter skatt per år', f: (y) => y.incomeNet, strong: true },
+    { l: 'Herav pensjonistfradrag i skatten', f: (y) => y.pensionCredit, hide: true },
+  ] },
+  { title: 'Til disposisjon', rows: [
+    { l: 'Disponibelt per måned (inntekt etter skatt + uttak)', f: (y) => y.disposablePerMonth, strong: true },
+    { l: 'Det samme i startårets kroner', f: (y) => y.disposablePerMonthReal, strong: true },
+    { l: 'Gjeldsbetjening per måned (renter og avdrag)', f: (y) => y.debtService / 12, hide: true },
+  ] },
+]
