@@ -8,6 +8,7 @@ import { Field, MoneyInput, PctInput, DateInput, IntInput, kr, krShort, pct } fr
 import IncomeChart from './IncomeChart.jsx'
 import { ScenarioBar, ChosenBanner } from './ScenarioBar.jsx'
 import ComparePanel from './ComparePanel.jsx'
+import InsightsPanel from './InsightsPanel.jsx'
 import { AccountsPanel, DebtsPanel, HomesPanel, IncomesPanel, PayoutsPanel } from './sections.jsx'
 import { SECTIONS } from './tables.js'
 import { exportExcel, downloadText } from './exportXlsx.js'
@@ -238,6 +239,8 @@ export default function App() {
         </div>
 
         <ComparePanel store={store} plans={plans} />
+
+        <InsightsPanel g={g} plan={plan} onSpend={put('wantedSpend')} />
 
         <div className="panel">
           <h2>Disponibel inntekt per måned · {activeSc.name}</h2>

@@ -177,3 +177,7 @@ button.add { margin: 6px 8px 0 0; }
 .panel.notice { border-color: #2a78d6; background: rgba(42,120,214,.07); }
 .file-btn { display: inline-block; cursor: pointer; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line, #c4ccc8); font-size: 14px; }
 select, .field select { max-width: 100%; }
+
+p.notice { margin: 8px 0; padding: 10px 12px; border-radius: 8px; border-left: 4px solid #2a78d6; background: rgba(42,120,214,.07); }
+p.notice.warn { border-left-color: #c0392b; background: rgba(192,57,43,.08); }
+p.notice.ok { border-left-color: #2e8b57; background: rgba(46,139,87,.08); }
