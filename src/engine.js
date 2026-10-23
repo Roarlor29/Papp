@@ -275,8 +275,9 @@ export function runPlanCore(g, extraMonthly = 0) {
     // Restskatt fra året før
     let restPaid = 0, restInterest = 0
     if (Math.abs(restDue) > 0.5) {
-      const payDay = dn(y, taxMonth, 20)
-      restInterest = restDue > 0 ? restDue * num(g.taxAuthorityRate) * Math.max(0, payDay - dn(y - 1, 7, 1)) / 365 : 0
+      const noInt = g.restNoInterest !== false
+      const payDay = noInt ? dn(y, 5, 25) : dn(y, taxMonth, 20)
+      restInterest = restDue > 0 && !noInt ? restDue * num(g.taxAuthorityRate) * Math.max(0, payDay - dn(y - 1, 7, 1)) / 365 : 0
       restPaid = restDue + restInterest
       base.push({ day: payDay, kind: 'restskatt', label: restDue > 0 ? `Restskatt ${y - 1} (inkl. rentetillegg)` : `Tilgode skatt ${y - 1}`, amount: -restPaid, prio: 2 })
     }

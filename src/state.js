@@ -47,7 +47,7 @@ export const DEFAULTS = {
   birth: '1960-01-01', start: '2027-01-01', years: 10, joint: false,
   inflation: 0.025, autoWithdraw: true, tjenesteCredit: false,
   targetEnabled: false, targetClosing: 1000000,
-  advanceShare: 1, advanceMonth: 9, taxPaymentMonth: 8, taxAuthorityRate: 0.0312,
+  advanceShare: 1, advanceMonth: 9, restNoInterest: true, taxPaymentMonth: 8, taxAuthorityRate: 0.0312,
   accounts: [
     { id: 1, type: 'konto', name: 'Sparekonto', institution: '', value: 2000000, rate: 0.04, cost: 0, sellDate: '', main: true },
   ],

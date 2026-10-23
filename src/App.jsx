@@ -349,13 +349,19 @@ export default function App() {
 
         <div className="panel">
           <h2>Betaling av skatt</h2>
+          <p className="field-hint">Gjelder skatt på renter, gevinster ved salg av fond og aksjer, og formuesskatt. Skatt på lønn og pensjon trekkes av utbetaleren hver måned og er ikke med her. Skatt på kapitalinntekt trekkes ikke automatisk: du betaler selv forskudd i løpet av året, eller restskatt etter skatteoppgjøret året etter.</p>
           <div className="grid">
-            {pctField('advanceShare', 'Andel betalt som forskuddsskatt', '100 % = alt betales i inntektsåret')}
+            {pctField('advanceShare', 'Andel betalt som forskuddsskatt i inntektsåret', '100 % = alt betales samme år. 0 % = alt betales som restskatt året etter')}
             {monthSelect('advanceMonth', 'Forskudd regnes betalt i')}
-            {monthSelect('taxPaymentMonth', 'Restskatt betales i')}
-            {pctField('taxAuthorityRate', 'Rentetillegg på restskatt', 'Sist kjente sats')}
           </div>
-          <p className="field-hint">Modellen legger hele forskuddet på én dato (15. i valgt måned) som en forenkling. Skatt på lønn og pensjon trekkes av utbetaleren og er ikke med her.</p>
+          <p className="inline-check"><label><input type="checkbox" checked={g.restNoInterest !== false} onChange={toggle('restNoInterest')} /> Jeg betaler restskatten innen fristen (om lag 1. mai–31. mai året etter), uten rentetillegg</label></p>
+          {g.restNoInterest === false && (
+            <div className="grid">
+              {monthSelect('taxPaymentMonth', 'Restskatt betales i')}
+              {pctField('taxAuthorityRate', 'Rentetillegg på restskatt', 'Sist kjente sats, løper fra 1. juli i inntektsåret')}
+            </div>
+          )}
+          <p className="field-hint">Er valget over på, legger modellen betalingen 25. mai året etter og regner ingen rentetillegg. Du må da selv betale inn beløpet (tilleggsforskudd) før fristen, ellers kommer rentetillegg. Sjekk gjeldende frist og sats på skatteetaten.no. Forskuddet legges på én dato (15. i valgt måned) som en forenkling.</p>
         </div>
 
         <details className="panel">
