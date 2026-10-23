@@ -305,14 +305,23 @@ export function runPlanCore(g, extraMonthly = 0) {
 
     // Inntekter dette året
     let salary = 0, pension = 0, folkBasis = 0
+    let tabSalary = 0, tabPension = 0, tabFolk = 0, pctWithheld = 0
     const incomeLines = []
     incomes.forEach((p, k) => {
       const a = Math.max(from, p.startDay), b = Math.min(yEnd, p.endDay === null ? yEnd : p.endDay)
       const months = b > a ? monthsBetween(a, b) : 0
       const gross = incLevel[k][i] * months
-      incomeLines.push({ id: p.id, name: p.name, kind: p.kind, monthly: months > 0 ? incLevel[k][i] : 0, gross })
+      const yo = g.yr && g.yr[y]
+      const method = (yo && yo.wm && yo.wm[p.id]) || p.wMethod || 'tabell'
+      const pctRate = yo && yo.wp && has(yo.wp[p.id]) ? yo.wp[p.id] : num(p.wPct, 0.3)
+      const withheldHere = method === 'tabell' ? null : gross * pctRate
+      incomeLines.push({ id: p.id, name: p.name, kind: p.kind, monthly: months > 0 ? incLevel[k][i] : 0, gross, method, pctRate, withheld: withheldHere })
       if (p.kind === 'lønn') salary += gross
       else { pension += gross; if (p.kind === 'folketrygd') folkBasis += gross }
+      if (method === 'tabell') {
+        if (p.kind === 'lønn') tabSalary += gross
+        else { tabPension += gross; if (p.kind === 'folketrygd') tabFolk += gross }
+      } else pctWithheld += gross * pctRate
     })
     const creditBasis = g.tjenesteCredit ? pension : folkBasis
     const common = { salary, pension, creditBasis, ...tp }
@@ -357,7 +366,10 @@ export function runPlanCore(g, extraMonthly = 0) {
     const paidForskudd = s.log.filter((e) => e.kind === 'forskudd').reduce((a, e) => a - e.amount, 0)
     const withdrawals = s.log.filter((e) => e.kind === 'uttak').reduce((a, e) => a - e.amount, 0)
     const netReturn = t.interestAll - t.interestTax - t.wealth
-    const trekk = tBase.total
+    // Trukket skatt: tabellposter trekker som om de var hele inntekten, prosentposter trekker fast prosent av brutto.
+    const tabTax = tax2027({ salary: tabSalary, pension: tabPension, creditBasis: g.tjenesteCredit ? tabPension : tabFolk, ...tp, interestIncome: 0, taxableRental: 0, taxablePropertyGain: 0 })
+    const trekk = (tabSalary + tabPension > 0 ? tabTax.total : 0) + pctWithheld
+    const labourRest = tBase.total - trekk
     const incomeNet = salary + pension - trekk
     const realFactor = 1 / Math.pow(1 + inflation, y - startYear)
     const disposablePerMonth = (incomeNet + withdrawals) / 12
@@ -373,17 +385,17 @@ export function runPlanCore(g, extraMonthly = 0) {
     years.push({
       year: y, age: birthYear === null ? null : y - birthYear, rate: rateMain, openMain, closeMain: s.close, minBal: s.minBal,
       interest: t.interestAll, interestTax: t.interestTax, gainTax: t.gainTax, wealthNet: t.wealthNet, wealthTax: t.wealth,
-      capitalTax: t.capitalTax, forskudd: paidForskudd, restPaid, restInterest, restNext: t.capitalTax - Math.max(0, share * t.capitalTax),
+      capitalTax: t.capitalTax, forskudd: paidForskudd, restPaid, restInterest, restNext: t.capitalTax - Math.max(0, share * t.capitalTax) + labourRest,
       withdrawals, withdrawalPerMonth: wDays.length ? withdrawals / wDays.length : 0, auto,
       payouts: payoutsSum, homeOut, settlementIn, fundSaleIn,
       debtInterest, debtPrincipal, debtService: debtInterest + debtPrincipal, debtClose: debtEnd,
-      salary, pension, incomeLines, trekk, incomeNet, pensionCredit: t.tNoGain.pensionCredit,
+      salary, pension, incomeLines, trekk, taxCalcLabour: tBase.total, labourRest, incomeNet, pensionCredit: t.tNoGain.pensionCredit,
       netReturn, netReturnPerMonth: netReturn / 12, disposablePerMonth, disposablePerMonthReal: disposablePerMonth * realFactor, realFactor,
       kontoClose, fondClose: othersClose.fond, aksjerClose: othersClose.aksjer, annetClose: othersClose.annet,
       savingsClose, homeMarket, homeTaxValue, netWorth,
     })
     events.push(...s.log, { day: yEnd - 1, kind: 'interest', year: y, label: `Renter ${y} kreditert kontoene`, amount: s.interest, balance: s.close, prio: 9 })
-    restDue = t.capitalTax - Math.max(0, share * t.capitalTax)
+    restDue = t.capitalTax - Math.max(0, share * t.capitalTax) + labourRest
     openMain = s.close
   }
 

@@ -1,5 +1,5 @@
 import { Field, MoneyInput, PctInput, DateInput, OptDateInput, krShort } from './inputs.jsx'
-import { ACCOUNT_TYPES, DEBT_MODES, HOME_KINDS, INCOME_KINDS, MAX_ITEMS } from './state.js'
+import { ACCOUNT_TYPES, DEBT_MODES, HOME_KINDS, INCOME_KINDS, MAX_ITEMS, WITHHOLD_METHODS } from './state.js'
 
 // Felles bygg for en post i en liste: tittel, «Fjern»-knapp og felter.
 function Card({ title, onRemove, children, note }) {
@@ -155,7 +155,7 @@ export function IncomesPanel({ g, api }) {
   return (
     <div className="panel">
       <h2>Inntekter: lønn og pensjon</h2>
-      <p className="field-hint">Legg inn hver inntekt for seg, også fra flere arbeidsgivere eller utbetalere. Beløpet er brutto per måned på startdatoen for posten, og øker med valgt prosent hvert år. Skatten regnes av summen av alle poster.</p>
+      <p className="field-hint">Legg inn hver inntekt for seg, også fra flere arbeidsgivere eller utbetalere. Beløpet er brutto per måned på startdatoen for posten, og øker med valgt prosent hvert år. Skatten regnes av summen av alle poster. Skattetrekket per post avgjør hvor mye som trekkes underveis. Hvis trekket avviker fra beregnet skatt, gjøres det opp som restskatt eller tilgode året etter.</p>
       {g.incomes.map((p) => (
         <Card key={p.id} title={`${p.name || 'Uten navn'} · ${krShort(p.monthly)} kr/mnd`} onRemove={() => api.delItem('incomes', p.id)}>
           <Select label="Type" value={p.kind} options={INCOME_KINDS} onChange={(v) => api.setItem('incomes', p.id, 'kind', v)} />
@@ -165,6 +165,11 @@ export function IncomesPanel({ g, api }) {
           <Field label="Starter"><DateInput label="Starter" value={p.start} onChange={(v) => api.setItem('incomes', p.id, 'start', v)} /></Field>
           <Field label="Slutter (valgfritt)"><OptDateInput label="Slutter" value={p.end} onChange={(v) => api.setItem('incomes', p.id, 'end', v)} /></Field>
           <Pct label="Økning per år" value={p.growth} onChange={(v) => api.setItem('incomes', p.id, 'growth', v)} />
+          <Select label="Skattetrekk fra denne posten" value={p.wMethod} options={WITHHOLD_METHODS} onChange={(v) => api.setItem('incomes', p.id, 'wMethod', v)}
+            hint="Kan endres for enkelte år i tabellen «Overstyr per år»" />
+          {p.wMethod === 'tabell'
+            ? <Text label="Tabellnummer (valgfritt)" max={10} value={p.wTable} onChange={(v) => api.setItem('incomes', p.id, 'wTable', v)} hint="Bare til info, for eksempel 7100" />
+            : <Pct label="Trekkprosent" value={p.wPct} onChange={(v) => api.setItem('incomes', p.id, 'wPct', v)} hint={p.wMethod === 'bi' ? 'Biarbeidsgivere trekker en fast prosent uten fradrag' : 'Fast prosent av brutto'} />}
         </Card>
       ))}
       {g.incomes.length < MAX_ITEMS.incomes && <button type="button" className="add" onClick={() => api.addItem('incomes', { start: g.start })}>+ Legg til lønn eller pensjon</button>}

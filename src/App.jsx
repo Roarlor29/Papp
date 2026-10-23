@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { runPlan, planSpan, dayToDate } from './engine.js'
 import {
   clampField, clampMoney, loadStore, saveStore, clearAll, hasSavedStore, readLegacyFromBrowser, encodeStore, decodeAny,
-  backupText, parseBackup, freshState, freshStore, copyScenarioData, newItem, MAX_NAME, MAX_ITEMS, MAX_AGE,
+  backupText, parseBackup, freshState, freshStore, copyScenarioData, newItem, MAX_NAME, MAX_ITEMS, MAX_AGE, WITHHOLD_METHODS,
 } from './state.js'
 import { Field, MoneyInput, PctInput, DateInput, IntInput, kr, krShort, pct } from './inputs.jsx'
 import IncomeChart from './IncomeChart.jsx'
@@ -48,6 +48,15 @@ export default function App() {
 
   const put = (k) => (v) => { if (typeof v === 'number' && !Number.isFinite(v)) return; setG((x) => ({ ...x, [k]: typeof v === 'number' ? clampField(k, v) : v })) }
   const toggle = (k) => () => setG((x) => ({ ...x, [k]: !x[k] }))
+  const setYrMap = (year, map, id, v, ok) => setG((x) => {
+    const yr = { ...x.yr }
+    const o = { ...(yr[year] || {}) }
+    const m = { ...(o[map] || {}) }
+    if (ok) m[id] = v; else delete m[id]
+    if (Object.keys(m).length) o[map] = m; else delete o[map]
+    if (Object.keys(o).length) yr[year] = o; else delete yr[year]
+    return { ...x, yr }
+  })
   const setYr = (year, field, v, incId) => setG((x) => {
     const yr = { ...x.yr }
     const o = { ...(yr[year] || {}) }
@@ -335,6 +344,28 @@ export default function App() {
                     {years.map((y) => {
                       const line = y.incomeLines.find((l) => l.id === p.id)
                       return <td key={y.year}><MoneyInput label={`${p.name} ${y.year}`} allowEmpty value={g.yr[y.year]?.inc?.[p.id]} placeholder={line ? line.monthly : 0} onChange={(v) => setYr(y.year, 'inc', v, p.id)} /></td>
+                    })}
+                  </tr>
+                ))}
+                {g.incomes.map((p) => (
+                  <tr key={`w${p.id}`}>
+                    <td>{p.name || 'Inntekt'}: skattetrekk</td>
+                    {years.map((y) => {
+                      const line = y.incomeLines.find((l) => l.id === p.id)
+                      const ym = g.yr[y.year]?.wm?.[p.id] || ''
+                      const eff = line ? line.method : p.wMethod
+                      return (
+                        <td key={y.year}>
+                          <select aria-label={`Trekkmetode ${p.name} ${y.year}`} value={ym} onChange={(e) => setYrMap(y.year, 'wm', p.id, e.target.value, !!e.target.value)}>
+                            <option value="">Som standard</option>
+                            {WITHHOLD_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                          </select>
+                          {eff !== 'tabell' && (
+                            <PctInput label={`Trekkprosent ${p.name} ${y.year}`} allowEmpty value={g.yr[y.year]?.wp?.[p.id]} placeholder={line ? line.pctRate : p.wPct}
+                              onChange={(v) => setYrMap(y.year, 'wp', p.id, v, v !== '' && v !== undefined && Number.isFinite(v))} />
+                          )}
+                        </td>
+                      )
                     })}
                   </tr>
                 ))}

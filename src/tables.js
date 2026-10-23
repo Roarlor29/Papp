@@ -16,7 +16,7 @@ export const SECTIONS = [
     { l: 'Netto avkastning (renter − skatt − formuesskatt)', f: (y) => y.netReturn, strong: true },
     { l: 'Uttak fra kapital til livsopphold', f: (y) => -y.withdrawals },
     { l: '  Uttak per måned', f: (y) => y.withdrawalPerMonth, strong: true },
-    { l: 'Restskatt fra året før (inkl. rentetillegg)', f: (y) => -y.restPaid, hide: true },
+    { l: 'Restskatt (−) eller tilgode (+) fra året før', f: (y) => -y.restPaid, hide: true },
     { l: 'Saldo 31. desember', f: (y) => y.closeMain, strong: true },
   ] },
   { title: 'Formue 31. desember', rows: [
@@ -33,7 +33,9 @@ export const SECTIONS = [
   { title: 'Inntekt', rows: [
     { l: 'Lønn brutto per år', f: (y) => y.salary, hide: true },
     { l: 'Pensjon brutto per år', f: (y) => y.pension, hide: true },
-    { l: 'Skatt på lønn og pensjon (trekkes)', f: (y) => -y.trekk },
+    { l: 'Skatt på lønn og pensjon (trukket)', f: (y) => -y.trekk },
+    { l: 'Beregnet skatt på lønn og pensjon', f: (y) => y.taxCalcLabour, hide: true },
+    { l: 'Restskatt (+) eller tilgode (−) på lønn og pensjon, gjøres opp året etter', f: (y) => y.labourRest, hide: true },
     { l: 'Lønn og pensjon etter skatt per år', f: (y) => y.incomeNet, strong: true },
     { l: 'Herav pensjonistfradrag i skatten', f: (y) => y.pensionCredit, hide: true },
   ] },

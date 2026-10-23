@@ -25,6 +25,11 @@ export const HOME_KINDS = [
   { value: 'sale', label: 'Boligsalg' },
   { value: 'purchase', label: 'Boligkjøp' },
 ]
+export const WITHHOLD_METHODS = [
+  { value: 'tabell', label: 'Tabelltrekk' },
+  { value: 'prosent', label: 'Trekkprosent' },
+  { value: 'bi', label: 'Biarbeidsgiver (trekkprosent)' },
+]
 export const INCOME_KINDS = [
   { value: 'lønn', label: 'Lønn' },
   { value: 'folketrygd', label: 'Folketrygd (alderspensjon)' },
@@ -108,7 +113,8 @@ const SCHEMAS = {
   incomes: { max: 20, fields: {
     kind: 'enum:' + INCOME_KINDS.map((x) => x.value), name: 'str:40', payer: 'str:40', monthly: 'money',
     start: 'date', end: 'dateOpt', growth: 'rate',
-  }, defaults: { kind: 'pensjon', name: 'Inntekt', payer: '', monthly: 0, start: '2027-01-01', end: '', growth: 0.025 } },
+    wMethod: 'enum:' + WITHHOLD_METHODS.map((x) => x.value), wTable: 'str:10', wPct: 'rate',
+  }, defaults: { kind: 'pensjon', name: 'Inntekt', payer: '', monthly: 0, start: '2027-01-01', end: '', growth: 0.025, wMethod: 'tabell', wTable: '', wPct: 0.3 } },
   payouts: { max: 30, fields: { label: 'str:60', date: 'date', amount: 'money' },
     defaults: { label: 'Utbetaling', date: '2027-06-01', amount: 0 } },
 }
@@ -175,6 +181,16 @@ export function sanitize(raw) {
         const inc = {}
         for (const [id, v] of Object.entries(o.inc)) if (/^\d+$/.test(id) && isNum(v)) inc[id] = clampMoney(v)
         if (Object.keys(inc).length) clean.inc = inc
+      }
+      if (o.wm && typeof o.wm === 'object') {
+        const wm = {}
+        for (const [id, v] of Object.entries(o.wm)) if (/^\d+$/.test(id) && WITHHOLD_METHODS.some((m) => m.value === v)) wm[id] = v
+        if (Object.keys(wm).length) clean.wm = wm
+      }
+      if (o.wp && typeof o.wp === 'object') {
+        const wp = {}
+        for (const [id, v] of Object.entries(o.wp)) if (/^\d+$/.test(id) && isNum(v)) wp[id] = Math.min(1, Math.max(0, v))
+        if (Object.keys(wp).length) clean.wp = wp
       }
       if (Object.keys(clean).length) out.yr[y] = clean
     }
