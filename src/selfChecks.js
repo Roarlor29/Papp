@@ -47,6 +47,7 @@ export function runSelfChecks() {
     { name: 'trekk: år 1 tabell og år 2 prosent kan kombineres', run: () => { const p = plan({ incomes: [{ id: 1, kind: 'lønn', name: 'A', payer: '', monthly: 40000, start: '2027-01-01', end: '', growth: 0, wMethod: 'tabell' }], yr: { 2028: { wm: { 1: 'prosent' }, wp: { 1: 0.25 } } } }); return Math.round(p.years[1].trekk) === 120000 && Math.round(p.years[0].labourRest) === 0 }, expect: true },
     { name: 'stresstest: lavere avkastning gir ikke mer kapital', run: () => { const g = sanitize({ ...DEFAULTS }); const r = stressTest(g, runPlan(g)); return r.length === 4 && r[1].closing <= r[0].closing + 1 && noNaN(r) }, expect: true },
     { name: 'forslag: mangler forbruk gir melding', run: () => { const g = sanitize({ ...DEFAULTS, wantedSpend: 900000 }); return suggestions(g, runPlan(g)).some((t) => t.level === 'warn') }, expect: true },
+    { name: 'standard: alle inntekter har skattetrekk-felt (hindrer krasj i utskrift)', run: () => DEFAULTS.incomes.every((p) => p.wMethod && typeof p.wPct === 'number'), expect: true },
     { name: 'planløp: født 1930 gir maks 3 år fra 2027 (aldri forbi 99 år)', run: () => { const s = planSpan(sanitize({ birth: '1930-01-01', start: '2027-01-01', years: 30 })); return s.years === 3 && s.capped }, expect: true },
     { name: 'planløp: 1 år er laveste verdi', run: () => plan({ years: 0 }).years.length, expect: 1 },
     { name: 'planløp: 25 år gir 25 årsrader', run: () => plan({ years: 25, birth: '1960-01-01' }).years.length, expect: 25 },

@@ -181,3 +181,24 @@ select, .field select { max-width: 100%; }
 p.notice { margin: 8px 0; padding: 10px 12px; border-radius: 8px; border-left: 4px solid #2a78d6; background: rgba(42,120,214,.07); }
 p.notice.warn { border-left-color: #c0392b; background: rgba(192,57,43,.08); }
 p.notice.ok { border-left-color: #2e8b57; background: rgba(46,139,87,.08); }
+
+/* Utskrift / PDF */
+.print-summary { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm 12mm; }
+  html, body { background: #fff !important; color: #111 !important; }
+  .wrap { display: none !important; }
+  .print-summary { display: block; font: 10.5pt/1.4 -apple-system, 'Helvetica Neue', Arial, sans-serif; color: #111; }
+  .print-summary header { border-bottom: 2px solid #1d3b5c; margin-bottom: 10px; padding-bottom: 6px; }
+  .print-summary h1 { font-size: 20pt; margin: 0 0 4px; color: #1d3b5c; }
+  .print-summary h2 { font-size: 12.5pt; margin: 16px 0 6px; color: #1d3b5c; break-after: avoid; }
+  .print-summary table { width: 100%; border-collapse: collapse; margin-bottom: 4px; break-inside: auto; }
+  .print-summary tr { break-inside: avoid; }
+  .print-summary th, .print-summary td { text-align: left; padding: 3px 6px; border-bottom: 0.5pt solid #bbb; font-size: 9.5pt; vertical-align: top; }
+  .print-summary th { background: #eef2f6; font-weight: 600; }
+  .print-summary .n { text-align: right; white-space: nowrap; }
+  .print-summary table.kv td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
+  .print-summary table.years th, .print-summary table.years td { font-size: 8.5pt; padding: 3px 4px; }
+  .print-summary ul { margin: 4px 0 4px 18px; padding: 0; }
+  .print-summary .fine { font-size: 8.5pt; color: #444; margin-top: 10px; }
+}

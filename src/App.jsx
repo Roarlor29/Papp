@@ -9,6 +9,7 @@ import IncomeChart from './IncomeChart.jsx'
 import { ScenarioBar, ChosenBanner } from './ScenarioBar.jsx'
 import ComparePanel from './ComparePanel.jsx'
 import InsightsPanel from './InsightsPanel.jsx'
+import PrintSummary from './PrintSummary.jsx'
 import { AccountsPanel, DebtsPanel, HomesPanel, IncomesPanel, PayoutsPanel } from './sections.jsx'
 import { SECTIONS } from './tables.js'
 import { exportExcel, downloadText } from './exportXlsx.js'
@@ -172,7 +173,16 @@ export default function App() {
     </Field>
   )
 
+  const printPdf = () => {
+    const old = document.title
+    document.title = `Papp oppsummering ${activeSc.name} ${new Date().toISOString().slice(0, 10)}`
+    const restore = () => { document.title = old; window.removeEventListener('afterprint', restore) }
+    window.addEventListener('afterprint', restore)
+    window.print()
+  }
+
   return (
+    <>
     <div className="wrap">
       <h1>Papp · pensjonistappen</h1>
       <p className="lede">
@@ -206,6 +216,7 @@ export default function App() {
 
         <div className="panel">
           <h2>Hovedresultat · {activeSc.name}</h2>
+          <div className="reset-row no-print"><button type="button" className="ghost small" onClick={printPdf}>Lag PDF-oppsummering</button></div>
           <div className="hero-grid multi">
             <div className="hero">
               <span>Netto avkastning per måned</span>
@@ -452,7 +463,8 @@ export default function App() {
             For å få de samme scenarioene på en annen enhet lager du en overføringskode eller bruker sikkerhetskopifilen.
           </p>
           <div className="reset-row">
-            <button type="button" className="primary" onClick={backup}>Last ned sikkerhetskopi (.json)</button>
+            <button type="button" className="primary" onClick={printPdf}>Lag PDF til bank eller rådgiver</button>
+            <button type="button" className="ghost" onClick={backup}>Last ned sikkerhetskopi (.json)</button>
             <button type="button" className="ghost" onClick={excel} disabled={busy}>{busy ? 'Lager Excel …' : 'Last ned som Excel (.xlsx)'}</button>
             <label className="ghost file-btn">Gjenopprett fra fil<input type="file" accept=".json,application/json" onChange={restore} hidden /></label>
           </div>
@@ -491,5 +503,7 @@ export default function App() {
         </div>
       </div>
     </div>
+    <PrintSummary g={g} plan={plan} name={activeSc.name} />
+    </>
   )
 }

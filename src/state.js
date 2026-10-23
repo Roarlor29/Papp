@@ -59,7 +59,7 @@ export const DEFAULTS = {
   debts: [],
   homes: [],
   incomes: [
-    { id: 1, kind: 'folketrygd', name: 'Folketrygd', payer: 'NAV', monthly: 25000, start: '2027-01-01', end: '', growth: 0.025 },
+    { id: 1, kind: 'folketrygd', name: 'Folketrygd', payer: 'NAV', monthly: 25000, start: '2027-01-01', end: '', growth: 0.025, wMethod: 'tabell', wTable: '', wPct: 0.3 },
   ],
   payouts: [],
   yr: {},
